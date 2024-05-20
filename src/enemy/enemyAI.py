@@ -1,29 +1,29 @@
 # Example file showing a basic pygame "game loop"
 import pygame
 from random import uniform
-
+from .module.settings import SCREEN_RECT, generate_position_out_of_screen
 
 MAX_FORCE = 10
 vec = pygame.math.Vector2
 frect = pygame.rect.FRect
 # Mob properties
 MOB_SIZE = 32
-MAX_SPEED = 4
+MAX_SPEED = 2.5
 MAX_FORCE = 0.4
 RAND_TARGET_TIME = 500
 WANDER_RING_DISTANCE = 150
 WANDER_RING_RADIUS = 50
 WANDER_TYPE = 2
 
+
 class EntityMovementAI():
     def __init__(self):
-        self.pos = vec(100, 100)
+        self.pos = generate_position_out_of_screen()
         self.vel = vec(MAX_SPEED, 0).rotate(uniform(0, 360))
         self.acc = vec(0, 0)
         self.head : frect = None
 
-        #set this to the screen width and height...
-        self.collision_zone : frect = frect(50, 50, 1120, 730)
+        self.collision_zone : frect = SCREEN_RECT
 
     def seek(self, target):
         self.desired = (target - self.pos).normalize() * MAX_SPEED
@@ -39,7 +39,7 @@ class EntityMovementAI():
         self.displacement = target
         return self.seek(target)
 
-    def update(self):
+    def update(self, delta):
         if WANDER_TYPE == 1:
             self.acc = self.wander()
         else:
@@ -51,7 +51,7 @@ class EntityMovementAI():
 
         self.vel += self.acc
         if self.vel.length() > MAX_SPEED:
-            self.vel.scale_to_length(MAX_SPEED)
+            self.vel.scale_to_length(MAX_SPEED * delta)
         self.pos += self.vel
 
 if __name__ == "__main__":
